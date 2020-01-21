@@ -4,9 +4,9 @@ import pygame
 
 def check_keydown_events(event, ship):
     """Reacts to keystrokes"""
-    if event.type == pygame.K_RIGHT:
+    if event.key == pygame.K_RIGHT:
         ship.moving_right = True
-    elif event.type == pygame.K_LEFT:
+    elif event.key == pygame.K_LEFT:
         ship.moving_left = True
 
 
@@ -35,3 +35,4 @@ def update_screen(ai_settings, screen, ship):
     ship.blitme()
     """Displaying the last-drawn screen"""
     pygame.display.flip()
+

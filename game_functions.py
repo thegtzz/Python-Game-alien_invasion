@@ -122,7 +122,7 @@ def change_fleet_direction(ai_settings, aliens):
     """Moves down all fleet and changes its direction"""
     for alien in aliens.sprites():
         alien.rect.y += ai_settings.fleet_drop_speed
-        ai_settings.fleet_direction *= -1
+    ai_settings.fleet_direction *= -1
 
 
 def ship_hit(ai_settings, stats, screen, ship, aliens, bullets):

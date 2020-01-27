@@ -25,7 +25,7 @@ def check_keyup_events(event, ship):
         ship.moving_left = False
 
 
-def check_events(ai_settings, screen, ship, bullets):
+def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets):
     """Process keys and mouse strokes"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -34,23 +34,46 @@ def check_events(ai_settings, screen, ship, bullets):
             check_keydown_events(event, ai_settings, screen, ship, bullets)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y)
 
 
-def update_screen(ai_settings, screen, ship, aliens, bullets):
+def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y):
+    """Starts a new game after pushing Play-button."""
+    button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
+    if button_clicked and not stats.game_active:
+        # Reset game stats.
+        stats.reset_stats()
+        stats.game_active = True
+
+        # Reset aliens & bullets lists.
+        aliens.empty()
+        bullets.empty()
+
+        # Creation of new fleet and centering the ship.
+        create_fleet(ai_settings, screen, ship, aliens)
+        ship.center_ship()
+
+
+def update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button):
     """Refreshes a screen"""
     screen.fill(ai_settings.bg_color)
-    """All bullets are behind the scenes of the ship and aliens"""
+    # All bullets are behind the scenes of the ship and aliens
     for bullet in bullets.sprites():
         bullet.draw_bullet()
     ship.blitme()
     aliens.draw(screen)
-    """Displaying the last-drawn screen"""
+    # Play-button is displayed only when game is inactive.
+    if not stats.game_active:
+        play_button.draw_button()
+    # Displaying the last-drawn screen
     pygame.display.flip()
 
 
 def fire_bullet(ai_settings, screen, ship, bullets):
-    """Releases a bullet if they are not at max lvl (3 pcs)"""
-    """Creation of a new bullet and including it in 'bullets' group"""
+    """Releases a bullet if they are not at max lvl (3 pcs)
+       Creation of a new bullet and including it in 'bullets' group"""
     if len(bullets) < ai_settings.bullets_allowed:
         new_bullet = Bullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
@@ -66,8 +89,8 @@ def update_bullets(ai_settings, screen, ship, aliens, bullets):
 
 
 def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
-    # Check if a bullet aims an alien ship.
-    # If yes, deletes the bullet and the ship.
+    """Check if a bullet aims an alien ship.
+       If yes, deletes the bullet and the ship."""
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
     if len(aliens) == 0:
         # Deleting existing bullets and creating new fleet.
